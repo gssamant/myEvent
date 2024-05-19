@@ -19,7 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from "../ui/input"
-import { createCategory, getAllCategories, testingFunction } from "@/lib/actions/category.actions"
+import { createCategory, getAllCategories } from "@/lib/actions/category.actions"
 
 type DropdownProps = {
   value?: string
@@ -30,20 +30,14 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
   const [categories, setCategories] = useState<ICategory[]>([])
   const [newCategory, setNewCategory] = useState('');
 
-  const handleAddCategory = async () => {
-    console.log('Before calling createCategory');
-    console.log(JSON.stringify(testingFunction));
-    // const category = await createCategory({
-    //   categoryName: newCategory.trim()
-    // })
-    // console.log('Receive category: ' + JSON.stringify(category));
-    const category: ICategory = { name: 'harsh', _id: "1" } as ICategory;
-    testingFunction();
-    setCategories((prevState) => [...prevState, category]);
-    setNewCategory('');
+  const handleAddCategory = () => {
+    createCategory({
+      categoryName: newCategory.trim()
+    })
+      .then((category) => {
+        setCategories((prevState) => [...prevState, category])
+      })
   }
-  
-  
 
   useEffect(() => {
     const getCategories = async () => {
@@ -51,6 +45,7 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
 
       categoryList && setCategories(categoryList as ICategory[])
     }
+
     getCategories();
   }, [])
 
@@ -60,13 +55,12 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
         <SelectValue placeholder="Category" />
       </SelectTrigger>
       <SelectContent>
-        {categories.length > 0 && categories.map((category) => {
-          console.log(JSON.stringify(category))
-          return <SelectItem key={category._id} value={category._id} className="select-item p-regular-14">
+        {categories.length > 0 && categories.map((category) => (
+          <SelectItem key={category._id} value={category._id} className="select-item p-regular-14">
             {category.name}
           </SelectItem>
-        })}
-  
+        ))}
+
         <AlertDialog>
           <AlertDialogTrigger className="p-medium-14 flex w-full rounded-sm py-3 pl-8 text-primary-500 hover:bg-primary-50 focus:text-primary-500">Add new category</AlertDialogTrigger>
           <AlertDialogContent className="bg-white">
@@ -78,14 +72,13 @@ const Dropdown = ({ value, onChangeHandler }: DropdownProps) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleAddCategory}>Add</AlertDialogAction>
+              <AlertDialogAction onClick={() => startTransition(handleAddCategory)}>Add</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </SelectContent>
     </Select>
-  );
-  
+  )
 }
 
 export default Dropdown
